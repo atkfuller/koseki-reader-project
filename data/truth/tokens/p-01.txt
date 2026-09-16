@@ -1,0 +1,20 @@
+# Key tokens for page 1: the fields a genealogist or lawyer actually needs.
+# Metric is recall -- does the engine's output contain this string anywhere.
+高木清太
+ムメノ
+幸道
+高木幸市
+高木マサヲ
+矢野平市
+矢野ミト
+福岡県うきは市浮羽町西隈上352番地2
+福岡県浮羽郡浮羽町大字西隈上352番地2
+明治32年3月15日
+明治36年7月31日
+昭和5年11月29日
+平成13年2月3日
+平成17年3月20日
+ブラジル国サンパウロ州ノロエステ線
+長男
+三女
+全部事項証明

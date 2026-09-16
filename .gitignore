@@ -1,0 +1,8 @@
+venv/
+venvs/
+out/
+data/pages/
+data/raw/
+__pycache__/
+.pytest_cache/
+*.pyc

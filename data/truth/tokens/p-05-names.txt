@@ -1,0 +1,17 @@
+# Key tokens for the page-5 name panel ONLY -- the crop excludes the upper
+# entry columns, so the whole-page list would score this region against text
+# that is not in it.
+高木清太
+ムメノ
+幸道
+恵美子
+美佐子
+道雄
+昭和五年拾壱月弐拾九日
+昭和八年八月拾五日
+昭和拾壱年参月九日
+昭和拾四年壱月四日
+長男
+三女
+四女
+二男

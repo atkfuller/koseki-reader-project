@@ -1,0 +1,28 @@
+# Key tokens for page 12 (除籍簿, Meiji/Taisho brush, dense, 除籍 stamps).
+#
+# NOTE: this page has NO full-page ground truth. Its ~700 characters of dense
+# Meiji brush writing, overlaid with four 除籍 stamps, are past what can be
+# transcribed reliably without an expert palaeographer -- and a shaky reference
+# would make every CER number below it meaningless. What is listed here is only
+# what can be read with confidence, largely because the same people appear on
+# pages 1-5 in modern print.
+#
+# This is the annotation-budget risk from the handoff, showing up on page 12 of
+# the very first document.
+高木幸市
+マサヲ
+矢野平市
+ミト
+ムメノ
+重太郎
+長女
+六男
+七男
+二女
+三女
+明治
+大正
+昭和
+浮羽郡
+船越村
+除籍

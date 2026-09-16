@@ -1,0 +1,22 @@
+# Key tokens for page 5 (改製原戸籍, brush, vertical).
+# All cross-validated against the modern printed koseki on pages 1-3 of the
+# same PDF, which restates the same people and dates in modern numerals.
+高木清太
+ムメノ
+幸道
+恵美子
+美佐子
+道雄
+昭和五年拾壱月弐拾九日
+昭和八年八月拾五日
+昭和拾壱年参月九日
+昭和拾四年壱月四日
+長男
+三女
+四女
+二男
+この謄本は、原戸籍の原本と相違ないことを認証する。
+令和六年壱月弐拾弐日
+福岡県うきは市長
+高木典雄
+サンパウロ

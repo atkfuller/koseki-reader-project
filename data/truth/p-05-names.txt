@@ -1,0 +1,36 @@
+# Ground truth -- Takagi Koseki, page 5, lower name panel (改製原戸籍, brush, vertical).
+# Region: bottom 34% of the page, decolored variant -> data/pages/p-05-names.png
+#
+# Confidence: HIGH, and independently cross-validated. Every date here is the
+# daiji (大字) form of a date that page 1 of the same PDF prints in modern
+# numerals for the same person:
+#     幸道   昭和五年拾壱月弐拾九日   = 昭和5年11月29日   (p1)
+#     恵美子 昭和八年八月拾五日       = 昭和8年8月15日    (p2)
+#     美佐子 昭和拾壱年参月九日       = 昭和11年3月9日    (p2)
+#     道雄   昭和拾四年壱月四日       = 昭和14年1月4日    (p2/p3)
+# Four independent agreements on name, birth order and date; the reading is not
+# a guess.
+#
+# Order: columns right-to-left, top-to-bottom within a column -- i.e. document
+# reading order. Per person the register runs 父・母・続柄 -> 名 -> 出生.
+父高木清太
+母ムメノ
+長男
+幸道
+出生昭和五年拾壱月弐拾九日
+父高木清太
+母ムメノ
+三女
+恵美子
+出生昭和八年八月拾五日
+父高木清太
+母ムメノ
+四女
+美佐子
+出生昭和拾壱年参月九日
+父高木清太
+母ムメノ
+二男
+道雄
+出生昭和拾四年壱月四日
+発行番号　00156056-20240122-0000000002-福岡県うきは市-(2の2)

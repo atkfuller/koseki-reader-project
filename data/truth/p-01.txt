@@ -1,0 +1,57 @@
+# Ground truth -- Takagi Koseki, page 1 (全部事項証明, computerised, horizontal).
+# Confidence: HIGH. Modern print; two independent reads (PaddleOCR at >=0.99
+# mean confidence, and a manual read of the 300dpi render) agree on every line
+# except ブラジル, which PaddleOCR returns as プラジル -- a dakuten error, and
+# the reference is correct as written below.
+# Order is document reading order: top to bottom, label then value.
+(3の1)
+全部事項証明
+本籍
+福岡県うきは市浮羽町西隈上352番地2
+氏名
+高木清太
+戸籍事項
+戸籍改製
+【改製日】平成13年2月3日
+【改製事由】平成6年法務省令第51号附則第2条第1項による改製
+更正
+【更正日】平成17年3月20日
+【更正事項】本籍
+【更正事由】平成17年3月20日行政区画変更市となった上，土地の名称変更
+【従前の記録】
+【本籍】福岡県浮羽郡浮羽町大字西隈上352番地2
+戸籍に記録されている者
+【名】清太
+【生年月日】明治32年3月15日
+【父】高木幸市
+【母】高木マサヲ
+【続柄】長男
+除籍
+戸籍に記録されている者
+【名】ムメノ
+【生年月日】明治36年7月31日
+【父】矢野平市
+【母】矢野ミト
+【続柄】三女
+身分事項
+出生
+【出生日】明治36年7月31日
+【出生地】福岡県浮羽郡椿子村
+【届出日】明治36年8月7日
+【届出人】父
+戸籍に記録されている者
+【名】幸道
+【生年月日】昭和5年11月29日
+【父】高木清太
+【母】高木ムメノ
+【続柄】長男
+除籍
+身分事項
+出生
+【出生日】昭和5年11月29日
+【出生地】ブラジル国サンパウロ州ノロエステ線
+【届出日】昭和5年12月12日
+【届出人】父
+【送付を受けた日】昭和6年2月27日
+発行番号　00226304-20240122-00000002-福岡県うきは市
+以下次頁

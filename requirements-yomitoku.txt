@@ -1,0 +1,2 @@
+# Isolated venv: yomitoku wants torch + newer networkx/reportlab than ndlocr-lite allows.
+yomitoku==0.14.0
