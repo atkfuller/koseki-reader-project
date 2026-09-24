@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 ENGINES = [
     PaddleEngine(),
+    PaddleEngine(box_thresh=0.5),  # what read_tier1.py runs in production
     YomitokuEngine(reading_order="auto"),
     YomitokuEngine(reading_order="top2bottom"),
     YomitokuEngine(reading_order="right2left"),  # baseline's setting, kept for comparison
