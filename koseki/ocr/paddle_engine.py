@@ -31,12 +31,26 @@ def _engine():
 
 
 class PaddleEngine:
-    name = "paddleocr"
+    """`box_thresh` is the detector's minimum mean score for a text box.
+
+    Paddle's default of 0.6 silently drops whole lines on page 3 of the Takagi
+    register -- a slightly tilted camera photo, where a long line's score map
+    bleeds into its neighbours. 0.5 recovers the line and adds no noise on the
+    other Tier 1 pages. None keeps Paddle's default (what the baseline ran).
+    """
+
+    def __init__(self, box_thresh: float | None = None):
+        self.box_thresh = box_thresh
+
+    @property
+    def name(self) -> str:
+        return "paddleocr" if self.box_thresh is None else f"paddleocr/box{self.box_thresh}"
 
     def run(self, image_path: str) -> Result:
         t = time.time()
+        kw = {} if self.box_thresh is None else {"text_det_box_thresh": self.box_thresh}
         try:
-            raw = _engine().predict(image_path)
+            raw = _engine().predict(image_path, **kw)
         except Exception as e:  # noqa: BLE001 - a failed engine is a benchmark result
             return Result(self.name, [], time.time() - t, error=f"{type(e).__name__}: {e}")
 

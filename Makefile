@@ -1,7 +1,7 @@
 VENV := ./venv/bin
 PDF  := data/raw/takagi.pdf
 
-.PHONY: setup pages bench test clean
+.PHONY: setup pages bench tier1 test clean
 
 setup:
 	~/.pyenv/versions/3.11.9/bin/python -m venv venv
@@ -20,6 +20,9 @@ pages:
 
 bench:
 	$(VENV)/python scripts/run_bench.py
+
+tier1:
+	$(VENV)/python scripts/read_tier1.py
 
 test:
 	$(VENV)/python -m pytest tests -q

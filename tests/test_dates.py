@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from koseki.dates import DateParseError, find_era_dates, kanji_number, parse_era_date
+from koseki.dates import DateParseError, find_era_dates, kanji_number, parse_date, parse_era_date
 
 
 @pytest.mark.parametrize("src,want", [
@@ -63,3 +63,31 @@ def test_find_era_dates_skips_junk():
     text = "昭和五年拾壱月弐拾九日出生 昭和五年拾参月壱日 明治参拾六年七月参拾壱日"
     found = find_era_dates(text)
     assert [d.gregorian for d in found] == [date(1930, 11, 29), date(1903, 7, 31)]
+
+
+@pytest.mark.parametrize("src,want", [("廿", 20), ("廿九", 29), ("卅", 30), ("卅壱", 31)])
+def test_contracted_tens(src, want):
+    assert kanji_number(src) == want
+
+
+def test_edo_eras():
+    """Both forms appear on the oldest Takagi pages."""
+    d = parse_era_date("慶応三年十月廿日")
+    assert d.gregorian.year == 1867 and d.day == 20
+    assert d.lunisolar  # month/day are old-calendar, only the year is Gregorian
+    assert parse_era_date("天保九年壱月壱日").gregorian.year == 1838
+    assert not parse_era_date("明治32年3月15日").lunisolar
+
+
+def test_era_transition_is_validated():
+    assert parse_era_date("昭和64年1月7日").gregorian == date(1989, 1, 7)
+    assert parse_era_date("平成元年1月8日").gregorian == date(1989, 1, 8)
+    with pytest.raises(DateParseError):
+        parse_era_date("昭和64年2月1日")   # Showa had ended
+    with pytest.raises(DateParseError):
+        parse_era_date("令和元年3月1日")   # Reiwa had not begun
+
+
+def test_seireki():
+    assert parse_date("【配偶者の生年月日】西暦1940年1月1日") == date(1940, 1, 1)
+    assert parse_date("令和5年10月17日").gregorian == date(2023, 10, 17)
