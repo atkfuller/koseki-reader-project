@@ -11,6 +11,10 @@ OCR output is cached per page under out/tier1/ocr/, because PaddleOCR takes
 
 Where a page has a reference transcription in data/truth/, its accuracy is
 printed, so this doubles as the Tier 1 check.
+
+Every name is also read a second time by yomitoku, and a name the two engines
+disagree on is flagged for review (koseki/crosscheck.py). That adds ~30-90s a
+page on first run, cached like the rest; --no-second-read skips it.
 """
 from __future__ import annotations
 
@@ -23,27 +27,31 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from PIL import Image  # noqa: E402
 
-from koseki import checks, tier1  # noqa: E402
+from koseki import checks, crosscheck, tier1  # noqa: E402
 from koseki.bench import load_truth, token_file  # noqa: E402
 from koseki.lexicon import fix_ocr  # noqa: E402
 from koseki.ocr.base import Line, reading_order_horizontal  # noqa: E402
 from koseki.ocr.paddle_engine import PaddleEngine  # noqa: E402
+from koseki.ocr.yomitoku_engine import YomitokuEngine  # noqa: E402
 from koseki.pdf import render_pdf  # noqa: E402
 from koseki.score import load_tokens, score, token_recall  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "out/tier1"
 ENGINE = PaddleEngine(box_thresh=0.5)
+# Second opinion on names only. Its reading_order mode has no effect on the
+# line-level output the adapter returns; see the Tier 1 benchmark.
+SECOND = YomitokuEngine(reading_order="auto")
 
 
-def ocr_page(png: Path, use_cache: bool) -> list[Line]:
-    cache = OUT / "ocr" / ENGINE.name.replace("/", "_") / f"{png.stem}.json"
+def ocr_page(png: Path, use_cache: bool, engine=ENGINE) -> list[Line]:
+    cache = OUT / "ocr" / engine.name.replace("/", "_") / f"{png.stem}.json"
     if use_cache and cache.exists():
         return [Line(d["text"], tuple(d["box"]), d["conf"]) for d in json.loads(cache.read_text())]
-    res = ENGINE.run(str(png))
+    res = engine.run(str(png))
     if res.error:
-        raise RuntimeError(f"{png.name}: {res.error}")
-    print(f"  ocr {png.name}: {len(res.lines)} lines in {res.seconds:.0f}s", flush=True)
+        raise RuntimeError(f"{png.name} ({engine.name}): {res.error}")
+    print(f"  ocr {png.name} ({engine.name}): {len(res.lines)} lines in {res.seconds:.0f}s", flush=True)
     cache.parent.mkdir(parents=True, exist_ok=True)
     cache.write_text(json.dumps([{"text": l.text, "box": l.box, "conf": l.conf} for l in res.lines],
                                 ensure_ascii=False, indent=1), encoding="utf-8")
@@ -116,6 +124,8 @@ def main() -> None:
     ap.add_argument("source", nargs="?", default=str(ROOT / "data/pages"),
                     help="a PDF, or a directory of p-NN.png pages")
     ap.add_argument("--no-cache", action="store_true")
+    ap.add_argument("--no-second-read", action="store_true",
+                    help="skip the yomitoku cross-check of names")
     args = ap.parse_args()
 
     src = Path(args.source)
@@ -143,6 +153,22 @@ def main() -> None:
         print("\n".join(reports))
 
     certs = tier1.parse(pages)
+
+    if not args.no_second_read:
+        if not SECOND.binary.exists():
+            print(f"\nsecond read skipped: {SECOND.binary} not installed (make setup)")
+        else:
+            second: dict[int, list[Line]] = {}
+            for png in pngs:
+                if page_number(png) not in pages:
+                    continue
+                try:
+                    second[page_number(png)] = ocr_page(png, not args.no_cache, SECOND)
+                except RuntimeError as e:   # a failed second read costs a check, not the run
+                    print(f"  second read failed, names on this page unchecked: {e}")
+            for c in certs:
+                crosscheck.cross_check(c, second, SECOND.name)
+            print(f"\nNames cross-checked with {SECOND.name} on pages {sorted(second)}")
     OUT.mkdir(parents=True, exist_ok=True)
     for c in certs:
         dest = OUT / f"{c.issue_no or 'unknown'}.json"
