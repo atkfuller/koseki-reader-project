@@ -1,0 +1,56 @@
+# Ground truth -- Takagi Koseki, page 2 (全部事項証明, computerised, horizontal).
+# Confidence: HIGH. Modern print, read manually off the 300dpi render with
+# zoomed crops of the two doubtful glyphs:
+#   恵美子 -- printed with the modern 恵. PaddleOCR returns the old form 惠,
+#             which is a real recognition error on a name field.
+#   ビリグヰ -- printed with the archaic kana ヰ, not イ or キ.
+# Order is document reading order: top to bottom, label then value.
+(3の2)
+全部事項証明
+【受理者】在バウルー領事
+婚姻
+【婚姻日】昭和33年9月20日
+【配偶者氏名】タカギ，クミコ
+【配偶者の国籍】ブラジル国
+【配偶者の生年月日】西暦1940年1月1日
+【婚姻の方式】ブラジル国の方式
+【証書提出日】令和5年10月17日
+【送付を受けた日】令和5年11月13日
+【受理者】在サンパウロ総領事
+【新本籍】福岡県うきは市浮羽町西隈上352番地2
+【特記事項】妻タカギ，クミコ証書提出
+戸籍に記録されている者
+【名】恵美子
+【生年月日】昭和8年8月15日
+【父】高木清太
+【母】高木ムメノ
+【続柄】三女
+身分事項
+出生
+【出生日】昭和8年8月15日
+【出生地】ブラジル国サンパウロ州ノロエステ線ビリグヰ駅
+【届出日】昭和8年8月23日
+【届出人】父
+【送付を受けた日】昭和8年11月20日
+【受理者】在バウルー領事
+戸籍に記録されている者
+【名】美佐子
+【生年月日】昭和11年3月9日
+【父】高木清太
+【母】高木ムメノ
+【続柄】四女
+身分事項
+出生
+【出生日】昭和11年3月9日
+【出生地】ブラジル国サンパウロ州ノロエステ線バルパライゾ駅
+【届出日】昭和11年3月22日
+【届出人】父
+【送付を受けた日】昭和11年6月25日
+【受理者】在バウルー領事
+戸籍に記録されている者
+【名】道雄
+【生年月日】昭和14年1月4日
+【父】高木清太
+【母】高木ムメノ
+発行番号　00226304-20240122-00000002-福岡県うきは市
+以下次頁

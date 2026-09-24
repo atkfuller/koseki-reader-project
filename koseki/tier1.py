@@ -22,6 +22,7 @@ import unicodedata
 from dataclasses import asdict, dataclass, field
 from datetime import date
 
+from . import checks
 from .dates import DateParseError, parse_date
 from .lexicon import (EVENT_BY_FIRST_FIELD, EVENTS_EN, LABELS_EN, fix_ocr,
                       value_en)
@@ -151,6 +152,7 @@ class Field:
     date: str | None = None
     date_note: str | None = None
     corrected_from: str | None = None
+    review: list[str] = field(default_factory=list)   # see checks.py
     children: list["Field"] = field(default_factory=list)
 
 
@@ -183,6 +185,8 @@ class Certificate:
     head_name: str | None = None
     registry_events: list[Event] = field(default_factory=list)
     persons: list[Person] = field(default_factory=list)
+    # {"child": i, "parent": j, "role": "father"|"mother"}, indices into persons
+    relationships: list[dict] = field(default_factory=list)
     certified_on: str | None = None
     footer: list[str] = field(default_factory=list)
     unparsed: list[dict] = field(default_factory=list)
@@ -284,6 +288,7 @@ def parse(pages: dict[int, list[Line]]) -> list[Certificate]:
             except (DateParseError, ValueError, AttributeError):
                 continue
         _parse_stream(cert, [s for s in stream if s[0] in page_nums])
+        checks.review(cert)
         certs.append(cert)
     return certs
 

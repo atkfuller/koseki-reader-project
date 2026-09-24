@@ -57,6 +57,9 @@ failure. If the boxes miss half the page, a better recogniser will not help.
     koseki/ocr/tiled.py    tiling, without which the NDL detector sees nothing
     koseki/score.py        CER, order-free bag-CER, and key-token recall
     koseki/dates.py        era + daiji numerals -> Gregorian
+    koseki/tier1.py        全部事項証明 parser: 【field】 lines -> persons and events
+    koseki/lexicon.py      OCR fix-ups, toponym gazetteer, English labels
+    koseki/checks.py       review flags and parent links for a parsed certificate
     koseki/bench.py        the harness
     data/truth/            reference transcriptions and key-token lists
     docs/ocr-baseline.md   what the numbers came out as, and what they mean

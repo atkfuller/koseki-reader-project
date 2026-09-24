@@ -1,0 +1,21 @@
+# Key tokens for page 2: the fields a genealogist or lawyer actually needs.
+# Metric is recall -- does the engine's output contain this string anywhere.
+恵美子
+美佐子
+道雄
+高木清太
+高木ムメノ
+タカギ，クミコ
+昭和33年9月20日
+西暦1940年1月1日
+令和5年10月17日
+昭和8年8月15日
+昭和11年3月9日
+昭和14年1月4日
+ブラジル国サンパウロ州ノロエステ線ビリグヰ駅
+ブラジル国サンパウロ州ノロエステ線バルパライゾ駅
+在バウルー領事
+在サンパウロ総領事
+福岡県うきは市浮羽町西隈上352番地2
+三女
+四女

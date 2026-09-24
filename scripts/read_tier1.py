@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from PIL import Image  # noqa: E402
 
-from koseki import tier1  # noqa: E402
+from koseki import checks, tier1  # noqa: E402
 from koseki.bench import load_truth, token_file  # noqa: E402
 from koseki.lexicon import fix_ocr  # noqa: E402
 from koseki.ocr.base import Line, reading_order_horizontal  # noqa: E402
@@ -95,6 +95,15 @@ def summary(cert: tier1.Certificate) -> str:
                 fix = f"  [OCR fixed from {f.corrected_from}]" if f.corrected_from else ""
                 out.append(f"      {f.label_en or f.label}: {f.value}"
                            + (f"  -> {extra}" if extra else "") + fix)
+    if cert.relationships:
+        out.append("  family links:")
+        for r in cert.relationships:
+            child, parent = cert.persons[r["child"]], cert.persons[r["parent"]]
+            out.append(f"      {checks.full_name(child)} -> {r['role']} {checks.full_name(parent)}")
+    flagged = checks.needs_review(cert)
+    out.append(f"  needs review: {len(flagged)} field(s)")
+    for f in flagged:
+        out += [f"      p{f.page} 【{f.label}】{f.value}: {why}" for why in f.review]
     if cert.unparsed:
         out.append(f"  unparsed: {[u['text'] for u in cert.unparsed]}")
     if cert.dropped:

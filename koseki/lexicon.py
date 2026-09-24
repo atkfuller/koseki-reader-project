@@ -25,6 +25,19 @@ OCR_FIXES = {
 # Labels whose value is a personal name. OCR_FIXES never applies to these.
 NAME_LABELS = {"名", "父", "母", "配偶者氏名", "養父", "養母"}
 
+# Old (kyujitai) or variant forms of name kanji, mapped to the everyday form.
+# Registries legitimately print either, and OCR swaps them freely: page 2 of
+# the Takagi register prints 恵美子 and PaddleOCR returned 惠美子 at 0.996
+# confidence. Since the registry spelling is the legal spelling, a name that
+# contains either side of a pair is flagged for review, never rewritten.
+NAME_VARIANTS = {
+    "惠": "恵", "髙": "高", "﨑": "崎", "邊": "辺", "邉": "辺", "澤": "沢",
+    "濱": "浜", "齋": "斎", "齊": "斉", "廣": "広", "國": "国", "榮": "栄",
+    "德": "徳", "藏": "蔵", "眞": "真", "龍": "竜", "櫻": "桜", "壽": "寿",
+    "彌": "弥", "實": "実", "淺": "浅", "關": "関", "瀨": "瀬", "條": "条",
+    "嶋": "島", "冨": "富", "學": "学", "將": "将", "靜": "静", "黑": "黒",
+}
+
 
 def fix_ocr(text: str, label: str | None = None) -> tuple[str, list[tuple[str, str]]]:
     """Apply OCR_FIXES to `text`. Returns (fixed, [(wrong, right), ...])."""

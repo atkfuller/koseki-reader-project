@@ -1,0 +1,23 @@
+# Ground truth -- Takagi Koseki, page 3 (全部事項証明, computerised, horizontal).
+# Confidence: HIGH for the record text. Modern print, read manually off the
+# 300dpi render. The page is a slightly tilted photo, not a flat scan.
+# The mascot caption and the municipal seal's own lettering are excluded, as
+# on page 1: they are decoration, not record content.
+# Order is document reading order: top to bottom, label then value.
+(3の3)
+全部事項証明
+【続柄】二男
+身分事項
+出生
+【出生日】昭和14年1月4日
+【出生地】ブラジル国サンパウロ州ノロエステ線ミランドポリス駅
+【届出日】昭和14年1月13日
+【届出人】父
+【送付を受けた日】昭和14年5月5日
+【受理者】在バウルー領事
+以下余白
+発行番号　00226304-20240122-00000002-福岡県うきは市
+これは，戸籍に記録されている事項の全部を証明した書面である。
+令和6年1月22日
+福岡県うきは市長
+高木典雄

@@ -1,0 +1,10 @@
+# Key tokens for page 3: the fields a genealogist or lawyer actually needs.
+# Metric is recall -- does the engine's output contain this string anywhere.
+二男
+昭和14年1月4日
+ブラジル国サンパウロ州ノロエステ線ミランドポリス駅
+昭和14年1月13日
+昭和14年5月5日
+在バウルー領事
+以下余白
+令和6年1月22日
