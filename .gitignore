@@ -9,3 +9,4 @@ __pycache__/
 
 # Koseki scans are real personal data; never commit them.
 *.pdf
+.DS_Store

@@ -1,2 +1,0 @@
-# Isolated venv: ndlocr-lite hard-pins (==) most of its dependency tree.
-ndlocr-lite @ git+https://github.com/ndl-lab/ndlocr-lite.git
