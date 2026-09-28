@@ -10,7 +10,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from koseki.lexicon import fix_ocr, kin_en, official_en, place_en
+from koseki.lexicon import (fix_ocr, kana_romaji, kin_en, name_en, official_en,
+                            phrase_en, place_en, value_en)
 from koseki.ocr.base import Line
 from koseki.tier1 import looks_like_tier1, merge_label_values, parse
 
@@ -114,6 +115,43 @@ def test_ocr_fixes_never_touch_names():
 def test_lexicon():
     assert place_en("ブラジル国サンパウロ州ノロエステ線ミランドポリス駅") == \
         "Mirandópolis Station, Noroeste Line, São Paulo State, Brazil"
-    assert place_en("福岡県浮羽郡椿子村") is None     # all-or-nothing
+    assert place_en("福岡県うきは市大字西隈上1番地2") == \
+        "1-2 Nishi-Kumanoue, Ukiha City, Fukuoka Prefecture"
+    assert place_en("福岡県テスト郡中央村") is None     # all-or-nothing
     assert official_en("在バウルー領事") == "Consul at Bauru"
     assert kin_en("弐男") == "second son" and kin_en("長女") == "eldest daughter"
+
+
+def test_names():
+    assert kana_romaji("ハナコ") == "Hanako" and kana_romaji("しょうこ") == "Shouko"
+    assert kana_romaji("キャッチー") == "Kyatchī" and kana_romaji("花子") is None
+    assert name_en("ヤマダ，ハナコ") == "Hanako Yamada"     # foreign style: surname first
+    assert name_en("高木ハナコ") == "Hanako Takagi"
+    assert name_en("高木一郎") is None                     # kanji given name, reading unknown
+    assert name_en("髙木ハナコ") == "Hanako Takagi"        # variant kanji, same reading
+    assert value_en("名", "ハナコ") == "Hanako"
+
+
+def test_phrases():
+    assert phrase_en("平成17年3月20日行政区画変更市となった上，土地の名称変更") == \
+        "Change of administrative boundaries on 20 March 2005: became a city, " \
+        "and the place name was changed"
+    assert phrase_en("夫ヤマダ，タロウ証書提出") == "Certificate submitted by husband Tarou Yamada"
+    assert phrase_en("福岡県うきは市長") == "Mayor of Ukiha City, Fukuoka Prefecture"
+    assert phrase_en("何か別の文") is None
+
+
+def test_translate_pages():
+    from koseki.translate import page_rows, render_page, untranslated
+    (cert,) = parse({1: PAGE1, 2: PAGE2})
+    pages = page_rows(cert)
+    assert list(pages) == [1, 2]
+    # 花子's birth runs over the break: 【届出人】 prints on page 2, the event label on page 1
+    assert any(r.ja == "出生" for r in pages[1])
+    assert pages[2][0].ja == "【届出人】父" and pages[2][0].en == "Notified by: Father"
+    assert any(r.ja == "婚姻" for r in pages[2])
+    assert pages[1][-2].ja == "以下次頁" and pages[2][-1].en == "22 January 2024"
+    # names and places with no table entry stay Japanese and are listed
+    assert "東京都テスト市中央一丁目1番地" in untranslated(pages[1])
+    md = render_page(cert, 1, pages[1])
+    assert md.startswith("# Page 1 of 2") and "*(untranslated)*" in md

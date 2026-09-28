@@ -61,6 +61,7 @@ failure. If the boxes miss half the page, a better recogniser will not help.
     koseki/lexicon.py      OCR fix-ups, toponym gazetteer, English labels
     koseki/checks.py       review flags and parent links for a parsed certificate
     koseki/crosscheck.py   second-engine (yomitoku) read of every name; flags disagreement
+    koseki/translate.py    Tier 1 certificate -> bilingual page-by-page English (tables only, no MT)
     koseki/bench.py        the harness
     data/truth/            reference transcriptions and key-token lists
     docs/ocr-baseline.md   what the numbers came out as, and what they mean
@@ -82,5 +83,8 @@ Page 12 deliberately has **no** full transcription -- see the note in
 Done: environment, preprocessing, four engine adapters, scoring, the baseline
 benchmark, era/daiji date parsing.
 
-Not started, and blocked on the baseline: translation, entity extraction,
-storage, review UI.
+Tier 1 (pages 1-3): OCR with PaddleOCR box_thresh=0.5, parsing, review flags,
+a yomitoku cross-check of names, and a page-by-page English rendering
+(`make tier1` writes it to out/tier1/en/).
+
+Not started: translation of the handwritten pages, storage, review UI.

@@ -15,6 +15,9 @@ printed, so this doubles as the Tier 1 check.
 Every name is also read a second time by yomitoku, and a name the two engines
 disagree on is flagged for review (koseki/crosscheck.py). That adds ~30-90s a
 page on first run, cached like the rest; --no-second-read skips it.
+
+Each page is then written out in English, Japanese alongside, to
+out/tier1/en/<issue number>/p-NN.md (koseki/translate.py).
 """
 from __future__ import annotations
 
@@ -27,7 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from PIL import Image  # noqa: E402
 
-from koseki import checks, crosscheck, tier1  # noqa: E402
+from koseki import checks, crosscheck, tier1, translate  # noqa: E402
 from koseki.bench import load_truth, token_file  # noqa: E402
 from koseki.lexicon import fix_ocr  # noqa: E402
 from koseki.ocr.base import Line, reading_order_horizontal  # noqa: E402
@@ -176,6 +179,16 @@ def main() -> None:
         print()
         print(summary(c))
         print(f"\n  -> {dest.relative_to(ROOT)}")
+
+        en_dir = OUT / "en" / (c.issue_no or "unknown")
+        en_dir.mkdir(parents=True, exist_ok=True)
+        print("\n  English:")
+        for page, rows in translate.page_rows(c).items():
+            dest = en_dir / f"p-{page:02d}.md"
+            dest.write_text(translate.render_page(c, page, rows), encoding="utf-8")
+            gaps = translate.untranslated(rows)
+            print(f"    -> {dest.relative_to(ROOT)}  {len(rows) - len(gaps)}/{len(rows)} lines in English"
+                  + (f", left in Japanese: {'、'.join(gaps)}" if gaps else ""))
 
 
 if __name__ == "__main__":

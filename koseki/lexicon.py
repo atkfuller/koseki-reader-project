@@ -8,6 +8,9 @@ lawyer most needs to be exact. What is not in these tables stays Japanese.
 from __future__ import annotations
 
 import re
+import unicodedata
+
+from .dates import DateParseError, parse_date
 
 # --- OCR corrections --------------------------------------------------------
 # Only substitutions that cannot be a real reading. Each is applied to whole
@@ -71,8 +74,20 @@ TOPONYMS = {
     "アラサツバ": "Araçatuba",
     "ロンドリーナ市": "Londrina",
     "バウルー": "Bauru",
+    # Japanese places. Readings checked against Japan Post's postcode data
+    # (西隈上 = ニシクマノウエ) and the gazetteer of merged villages
+    # (椿子村 = つばこむら, a former village of 浮羽郡).
+    "福岡県": "Fukuoka Prefecture",
+    "うきは市": "Ukiha City",
+    "浮羽郡": "Ukiha District",
+    "浮羽町": "Ukiha-machi",
+    "西隈上": "Nishi-Kumanoue",
+    "椿子村": "Tsubako Village",
 }
 _TOPO_KEYS = sorted(TOPONYMS, key=len, reverse=True)
+# 大字 marks a pre-merger village section; romanised addresses drop it.
+_ADDR_SKIP = ("大字",)
+_LOT_RE = re.compile(r"(?P<a>\d+)番地(?P<b>\d+)?$")
 
 
 def place_en(value: str) -> str | None:
@@ -81,8 +96,17 @@ def place_en(value: str) -> str | None:
     All-or-nothing: a half-romanised address is worse than the Japanese, because
     it looks finished.
     """
+    value = unicodedata.normalize("NFKC", value)
     parts, i = [], 0
     while i < len(value):
+        if skip := next((k for k in _ADDR_SKIP if value.startswith(k, i)), None):
+            i += len(skip)
+            continue
+        if parts and (m := _LOT_RE.match(value, i)):
+            # 352番地2 -> "352-2 Nishi-Kumanoue": the lot number leads its block
+            lot = m.group("a") + (f"-{m.group('b')}" if m.group("b") else "")
+            parts[-1] = f"{lot} {parts[-1]}"
+            break
         for k in _TOPO_KEYS:
             if value.startswith(k, i):
                 parts.append(TOPONYMS[k])
@@ -188,16 +212,144 @@ def kin_en(value: str) -> str | None:
 _FORM_RE = re.compile(r"^(?P<country>.+?)の方式$")
 
 
+# --- Dates ------------------------------------------------------------------
+_MONTHS = ["January", "February", "March", "April", "May", "June", "July",
+           "August", "September", "October", "November", "December"]
+
+
+def date_en(iso: str) -> str:
+    """2005-03-20 -> 20 March 2005."""
+    y, m, d = (int(x) for x in iso.split("-"))
+    return f"{d} {_MONTHS[m - 1]} {y}"
+
+
+# --- Personal names ---------------------------------------------------------
+# The registry records how a name is written, not how it is read (furigana
+# only became part of the koseki in 2025, after this certificate was issued),
+# so a kanji name has no romanisation the document can vouch for. These are
+# readings the name is almost always given; a kanji name not listed here stays
+# in kanji rather than get a guess. 高木 = Takagi is confirmed by the spouse's
+# katakana タカギ on the same certificate.
+SURNAMES = {"高木": "Takagi", "矢野": "Yano"}
+GIVEN_NAMES = {"恵美子": "Emiko", "美佐子": "Misako", "道雄": "Michio"}
+
+# Katakana to modified Hepburn. Hiragana is shifted to katakana first.
+_KANA = dict(zip(
+    "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲン"
+    "ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポヴ",
+    "a i u e o ka ki ku ke ko sa shi su se so ta chi tsu te to na ni nu ne no "
+    "ha hi fu he ho ma mi mu me mo ya yu yo ra ri ru re ro wa i e o n "
+    "ga gi gu ge go za ji zu ze zo da ji zu de do ba bi bu be bo pa pi pu pe po vu".split()))
+_YOON = {"ャ": "a", "ュ": "u", "ョ": "o"}
+_MACRON = dict(zip("aiueo", "āīūēō"))
+
+
+def kana_romaji(text: str) -> str | None:
+    """ムメノ -> Mumeno, マサヲ -> Masao. None if `text` is not all kana."""
+    text = "".join(chr(ord(c) + 0x60) if "ぁ" <= c <= "ゖ" else c for c in text)
+    out, double = "", False
+    for c in text:
+        if c == "ッ":
+            double = True
+            continue
+        if c in _YOON and out and out[-1] == "i":
+            # キャ -> kya, シャ -> sha, チャ -> cha, ジャ -> ja
+            out = out[:-1] + ("" if out[-2:-1] in "hj" else "y") + _YOON[c]
+            continue
+        if c == "ー" and out and out[-1] in _MACRON:
+            out = out[:-1] + _MACRON[out[-1]]
+            continue
+        r = _KANA.get(c)
+        if r is None:
+            return None
+        if double:
+            out += "t" if r.startswith("ch") else r[0]
+            double = False
+        out += r
+    return out.capitalize() if out else None
+
+
+def _name_part(part: str, table: dict[str, str]) -> str | None:
+    key = "".join(NAME_VARIANTS.get(c, c) for c in part)
+    return table.get(key) or kana_romaji(part)
+
+
+def name_en(value: str, given_only: bool = False) -> str | None:
+    """高木恵美子 -> Emiko Takagi; タカギ，クミコ -> Kumiko Takagi.
+
+    All-or-nothing, like place_en: a name with any part unread stays Japanese.
+    """
+    value = unicodedata.normalize("NFKC", value).replace(" ", "")
+    if "," in value:          # foreign-style SURNAME,GIVEN in katakana
+        sur, _, given = value.partition(",")
+        parts = [_name_part(given, GIVEN_NAMES), _name_part(sur, SURNAMES)]
+    elif given_only:
+        parts = [_name_part(value, GIVEN_NAMES)]
+    else:
+        plain = "".join(NAME_VARIANTS.get(c, c) for c in value)   # 髙木 reads as 高木
+        sur = next((k for k in sorted(SURNAMES, key=len, reverse=True)
+                    if plain.startswith(k) and len(value) > len(k)), None)
+        if sur is None:
+            return None
+        parts = [_name_part(value[len(sur):], GIVEN_NAMES), SURNAMES[sur]]
+    return " ".join(parts) if all(parts) else None  # type: ignore[arg-type]
+
+
+# --- Fixed legal wording ----------------------------------------------------
+# Sentences the computerised koseki prints verbatim, or with only a date or a
+# name slotted in. Anything else in a prose field stays Japanese.
+PHRASES = {
+    # The 1994 ordinance that allowed registers to be kept on computer; every
+    # computerised koseki cites it as the reason for its revision.
+    "平成6年法務省令第51号附則第2条第1項による改製":
+        "Revised under Supplementary Provisions Article 2(1) of Ministry of Justice "
+        "Ordinance No. 51 of 1994 (conversion to a computerised register)",
+    "これは,戸籍に記録されている事項の全部を証明した書面である。":
+        "This document certifies all matters recorded in the family register.",
+}
+
+_REDISTRICT_RE = re.compile(r"^(?P<date>.+?日)行政区画変更市となった上,土地の名称変更$")
+_SUBMITTED_RE = re.compile(r"^(?P<kin>妻|夫)(?P<name>.+)証書提出$")
+_MAYOR_RE = re.compile(r"^(?P<place>.+?[市町村])長$")
+
+
+def phrase_en(value: str) -> str | None:
+    value = unicodedata.normalize("NFKC", value).replace("，", ",")
+    if value in PHRASES:
+        return PHRASES[value]
+    if m := _REDISTRICT_RE.match(value):
+        try:
+            when = date_en(parse_date(m.group("date")).gregorian.isoformat())  # type: ignore[union-attr]
+        except (DateParseError, ValueError, AttributeError):
+            return None
+        return (f"Change of administrative boundaries on {when}: became a city, "
+                f"and the place name was changed")
+    if m := _SUBMITTED_RE.match(value):
+        who = name_en(m.group("name"))
+        kin = {"妻": "wife", "夫": "husband"}[m.group("kin")]
+        return f"Certificate submitted by {kin} {who}" if who else None
+    if m := _MAYOR_RE.match(value):
+        place = place_en(m.group("place"))
+        return f"Mayor of {place}" if place else None
+    return None
+
+
 def value_en(label: str, value: str) -> str | None:
     """English for a field value, where it comes from a table, not a translator."""
     if label in {"続柄", "届出人"}:
         return kin_en(value)
     if label == "受理者":
         return official_en(value)
-    if label in {"出生地", "死亡地", "配偶者の国籍", "婚姻地"}:
+    if label in {"出生地", "死亡地", "配偶者の国籍", "婚姻地", "本籍", "新本籍"}:
         return place_en(value)
     if label == "婚姻の方式":
         m = _FORM_RE.match(value)
         place = place_en(m.group("country")) if m else None
         return f"Under the law of {place}" if place else None
+    if label in NAME_LABELS:
+        return name_en(value, given_only=label == "名")
+    if label == "更正事項":
+        return LABELS_EN.get(value)
+    if label in {"改製事由", "更正事由", "特記事項"}:
+        return phrase_en(value)
     return None
