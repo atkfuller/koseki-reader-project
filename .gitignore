@@ -6,7 +6,10 @@ data/raw/
 __pycache__/
 .pytest_cache/
 *.pyc
-
+.env
 # Koseki scans are real personal data; never commit them.
 *.pdf
 .DS_Store
+
+# API keys; load with python-dotenv, never commit.
+.env

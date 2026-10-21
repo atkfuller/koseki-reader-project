@@ -24,8 +24,26 @@ make setup     # builds venv/ with PaddleOCR
 ```bash
 make text      # data/raw/takagi.pdf -> out/text/takagi/p-01.txt ... and all.txt
 ./venv/bin/python scripts/pdf_to_text.py path/to/other.pdf
+
+echo 'OPENAI_API_KEY=...' > .env   # read by the script; .env is gitignored
+                                 # optional: OPENAI_MODEL=... in .env too
+make translate # out/text/takagi/p-01.txt -> p-01.en.txt and p-01.en.md
+./venv/bin/python scripts/translate_text.py --dry-run   # show the prompt, no API call
+
 make test
 ```
+
+Translation sends each page's text to an OpenAI model (`gpt-6-astra` unless
+`--model` or `$OPENAI_MODEL` says otherwise) in one request
+and gets back every Japanese line paired with its English, plus notes on
+anything uncertain: kanji name readings, which the registry does not record,
+and characters that look like OCR slips. Fixed terms (field labels, Brazilian
+place names) come from the glossary in `koseki/lexicon.py`, so they read the
+same on every page. Pages already translated are skipped unless `--force`.
+The page text, including names and dates, goes to the OpenAI API.
+
+Fix known OCR errors in the `.txt` files before translating; the model is told
+to translate what is written, not to correct names.
 
 OCR is PaddleOCR with `box_thresh=0.5`, the best setting on the Tier 1
 benchmark (74 of 75 fields exact). A page takes 1-2 minutes on CPU the first
@@ -42,6 +60,7 @@ the 出 of 出生 is missed on page 3.
 ## Layout
 
     scripts/pdf_to_text.py   PDF -> per-page Japanese text
+    scripts/translate_text.py per-page Japanese text -> English, via OpenAI
     koseki/ocr/              PaddleOCR adapter and the common Line/Result shape
     koseki/pdf.py            PDF -> 300dpi page images (pdftoppm)
     koseki/score.py          character accuracy against a reference

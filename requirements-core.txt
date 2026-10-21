@@ -1,6 +1,9 @@
-# PaddleOCR and what it needs. opencv is pinned to the build it was tested with.
+# PaddleOCR and what it needs (opencv pinned to the build it was tested with),
+# and the OpenAI SDK for translation (python-dotenv reads the key from .env).
 paddlepaddle==3.3.1
 paddleocr==3.7.0
 opencv-contrib-python==4.10.0.84
 pillow
 numpy
+openai
+python-dotenv
